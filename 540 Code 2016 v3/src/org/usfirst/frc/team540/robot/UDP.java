@@ -6,8 +6,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
-public class UDP implements Runnable
-{
+/**
+ * Uses UDP(User Data Protocol) to communicate with the Raspberry Pi and receive the information that it sends.
+ * @author Bryant
+ * */
+public class UDP implements Runnable{
 	byte[] data;
 	String[] out;
 	DatagramSocket socket = null;
@@ -15,29 +18,24 @@ public class UDP implements Runnable
 	byte[] buf = new byte[256];
 	DatagramPacket packet = new DatagramPacket(buf, buf.length);
 	String lastDataReceived = "";
-	public void run()
-	{
+	public void run(){
 		try {
 			socket = new DatagramSocket(1234);
-		} catch (SocketException e1) {
-			// TODO Auto-generated catch block
+		} catch (SocketException e1){
 			e1.printStackTrace();
 		}
 		packet.setLength(buf.length);
 		try {
 			socket.receive(packet);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		byte[] data = packet.getData();
 		lastDataReceived = new String(data, 0, packet.getLength());
-		while(true)
-		{
+		while(true){
 			try {
 				socket.receive(packet);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			data = packet.getData();

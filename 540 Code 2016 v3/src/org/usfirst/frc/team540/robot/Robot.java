@@ -24,45 +24,27 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the IterativeRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the manifest file in the resource
- * directory.
- */
 public class Robot extends IterativeRobot {
 	Joystick leftJoystick, rightJoystick, PSP;
-
-	SD540 frontLeft, frontRight, rearLeft, rearRight, shooter, ballMagR, ballMagL, ruweRail;
-	SD540 magLight;
+	SD540 frontLeft, frontRight, rearLeft, rearRight, shooter, ballMagR, ballMagL, ruweRail, magLight;
 	RobotSide rightSide, leftSide;
-
-
 	Solenoid first, second, firstB, secondB;
-	// REPLACE RUWE RAILS WITH MOTOR
-
-
 	PowerDistributionPanel pdp;
 	AnalogGyro gyro;
 	AnalogInput IR2;
 	AnalogInput pressure; //p = (250*(Vout/5V)) - 25
 	AnalogInput IR;
-
-	//Encoder encLeft, encRight, encRuwe;
-	//	ADXL345_I2C accel;
-	//	double accelerationX;
-	//	double accelerationY;
-	//	double accelerationZ;
-	//	ADXL345_I2C.AllAxes accelerations;
-
-	double yValLeft, yValRight, PSPStick, rangePrior, IRdist2, angle, PSI, IRdist;
-
-	boolean pressureSwitch, crossing, readyToTrack, ruweUp, autoShift, speedMode,
-	facingForwards, leftTrigger, debounce, rightTrigger, xboxX, xboxA,xboxB, useIR, shooterOn, teleTrack;
-
 	Compressor compressor;
-
+	SendableChooser chooser;
+	NetworkTable table;
+	Encoder encLeft, encRight, encRuwe;
+	//ADXL345_I2C accel;
+	//ADXL345_I2C.AllAxes accelerations;
+	//double accelerationX;
+	//double accelerationY;
+	//double accelerationZ;
+	double yValLeft, yValRight, PSPStick, rangePrior, IRdist2, angle, PSI, IRdist;
+	boolean pressureSwitch, crossing, readyToTrack, ruweUp, autoShift, speedMode, facingForwards, leftTrigger, debounce, rightTrigger, xboxX, xboxA,xboxB, useIR, shooterOn, teleTrack;
 	final String defaultAuto = "Default";
 	final String mode0 = "Mode 0";		
 	final String mode1 = "Mode 1";
@@ -72,9 +54,6 @@ public class Robot extends IterativeRobot {
 	final String mode5 = "Mode 5";
 	final String mode6 = "Mode 6";
 	String autoSelected;
-
-	SendableChooser chooser;
-
 	static double angle2 = -120;
 	static double rotate1 = 0.15;
 	static double P = 1.5;
@@ -97,15 +76,9 @@ public class Robot extends IterativeRobot {
 	double forwardVal = .5;
 	double teleAngle = -113;
 	static long startTime;
-
 	double[] vals = {0,0};
-	NetworkTable table;
 	public static double[] tableVals = {0,0};
 
-	/**
-	 * This function is run when the robot is first started up and should be
-	 * used for any initialization code.
-	 */
 	public void robotInit() {
 		(new Thread(new UDP())).start();
 		leftJoystick = new Joystick(0);
@@ -146,8 +119,7 @@ public class Robot extends IterativeRobot {
 		shooterOn = false;
 		//booleans
 
-
-		counter = -1;
+		counter = -1; //Counter for auto
 
 		first = new Solenoid(1);
 		second = new Solenoid(2);
@@ -166,8 +138,6 @@ public class Robot extends IterativeRobot {
 		IR = new AnalogInput(3);
 		//Analog Sensors
 
-
-
 		table = NetworkTable.getTable("cameratrack");
 		//Initialize the Network Table from raspberry Pi
 
@@ -185,7 +155,8 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("AUTO Counter", counter);
 		SmartDashboard.putNumber("forwardVal", forwardVal);
 		SmartDashboard.putNumber("teleAngle", teleAngle);
-
+		//Adds the above values to the Dashboard
+		
 		/*
 		encLeft = new Encoder(1, 1, false);
 		encRight= new Encoder(2, 2, true);
@@ -372,7 +343,7 @@ public class Robot extends IterativeRobot {
 			toggle = false;
 			break;
 		case mode3:
-			//Moves across the moat
+			//Moves across the moat for a longer time 
 			if(toggle){
 				leftSide.setValue(-1);
 				rightSide.setValue(-1);
@@ -385,7 +356,7 @@ public class Robot extends IterativeRobot {
 			break;	
 
 		case mode4:
-			//Moves across the moat
+			//Moves across the moat and tracks DOES NOT SHOOT
 			if(toggle){
 				leftSide.setValue(-1);
 				rightSide.setValue(-1);
@@ -472,7 +443,7 @@ public class Robot extends IterativeRobot {
 			//Shoot ball
 			break;
 		case mode5:
-			//Moves across the moat
+			//Moves across the moat and camera tracks and SHOOTS
 			if(toggle){
 				leftSide.setValue(0.6);
 				rightSide.setValue(0.6);
